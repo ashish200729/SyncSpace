@@ -1,0 +1,81 @@
+/*
+  Theme constants:
+  - Clean and Premium Minimalist Theme
+*/
+:root {
+  --brand-hue: 0;
+  --brand-saturation: 0%;
+  --brand-lightness: 9%;
+}
+
+@theme inline {
+  --font-sans: var(--font-manrope), "Inter", "Helvetica Neue", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
+
+  /* Apple / Linear inspired premium minimalist palette */
+  --color-background: hsl(240 5% 96%); /* #F5F5F7 - Super clean subtle gray */
+  --color-foreground: hsl(240 5% 12%); /* #1D1D1F - Soft elegant black */
+  --color-card: hsl(0 0% 100%);
+  --color-card-foreground: hsl(240 5% 12%);
+
+  --color-primary: hsl(240 5% 10%);
+  --color-primary-foreground: hsl(0 0% 100%);
+
+  --color-secondary: hsl(240 5% 90%);
+  --color-secondary-foreground: hsl(240 5% 15%);
+
+  --color-accent: hsl(240 5% 90%);
+  --color-accent-foreground: hsl(240 5% 15%);
+
+  --color-muted: hsl(240 5% 92%);
+  --color-muted-foreground: hsl(240 5% 40%);
+
+  --color-border: hsl(240 6% 88%);
+  --color-ring: hsl(240 5% 10%);
+
+  --shadow-soft: 0 8px 40px -8px rgba(0, 0, 0, 0.04);
+  --shadow-premium: 0 20px 40px -12px rgba(0, 0, 0, 0.06);
+
+  --animate-fade-up: fade-up 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  
+  @keyframes fade-up {
+    0% {
+      opacity: 0;
+      transform: translateY(24px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-background: hsl(240 4% 5%);
+    --color-foreground: hsl(0 0% 98%);
+    --color-card: hsl(240 4% 8%);
+    --color-card-foreground: hsl(0 0% 98%);
+
+    --color-primary: hsl(0 0% 98%);
+    --color-primary-foreground: hsl(240 5% 10%);
+
+    --color-secondary: hsl(240 4% 15%);
+    --color-secondary-foreground: hsl(0 0% 98%);
+
+    --color-accent: hsl(240 4% 15%);
+    --color-muted: hsl(240 4% 15%);
+    --color-muted-foreground: hsl(240 5% 65%);
+
+    --color-border: hsl(240 4% 18%);
+    --color-ring: hsl(0 0% 83%);
+    
+    --shadow-soft: 0 8px 40px -8px rgba(0, 0, 0, 0.4);
+    --shadow-premium: 0 20px 40px -12px rgba(0, 0, 0, 0.6);
+  }
+}
