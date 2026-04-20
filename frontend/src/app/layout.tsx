@@ -2,6 +2,8 @@ import "./globals.css";
 import type { Metadata } from "next";
 import { Manrope } from "next/font/google";
 import { ReactNode } from "react";
+import { Header } from "../components/layout/Header";
+import { Footer } from "../components/layout/Footer";
 
 const manrope = Manrope({
   subsets: ["latin"],
@@ -21,7 +23,13 @@ type RootLayoutProps = {
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="en">
-      <body className={manrope.variable}>{children}</body>
+      <body className={`${manrope.variable} min-h-screen flex flex-col`}>
+        <Header />
+        <div className="flex-1">
+          {children}
+        </div>
+        <Footer />
+      </body>
     </html>
   );
 }
