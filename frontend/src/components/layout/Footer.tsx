@@ -24,9 +24,8 @@ export function Footer() {
 
           {/* Minimal Links */}
           <nav className="flex items-center gap-6 font-medium text-muted-foreground/80">
-            <Link href="/features" className="hover:text-foreground transition-colors">Features</Link>
-            <Link href="/docs" className="hover:text-foreground transition-colors">Docs</Link>
-            <Link href="/privacy" className="hover:text-foreground transition-colors">Privacy</Link>
+            <Link href="/#features" className="hover:text-foreground transition-colors">Features</Link>
+            <Link href="/#workflow" className="hover:text-foreground transition-colors">How it works</Link>
           </nav>
 
           {/* Copyright vs Socials */}

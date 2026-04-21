@@ -1,11 +1,51 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { authClient } from "../../lib/auth-client";
+import type { AuthSession } from "../../lib/auth-session";
 
-export function Header() {
+type HeaderProps = {
+  initialSession: AuthSession | null;
+};
+
+export function Header({ initialSession }: HeaderProps) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const { data: sessionData, isPending } = authClient.useSession();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
+  const [isSigningOut, setIsSigningOut] = useState(false);
+  const [signOutError, setSignOutError] = useState("");
+  const session = isPending ? initialSession : sessionData;
+  const isAuthenticated = Boolean(session?.user);
+  const primaryHref = isAuthenticated ? "/dashboard" : "/login";
+  const primaryLabel = isAuthenticated ? "Dashboard" : "Log in";
+
+  const handleSignOut = async () => {
+    if (isSigningOut) {
+      return;
+    }
+
+    setIsSigningOut(true);
+    setSignOutError("");
+
+    try {
+      const { error } = await authClient.signOut();
+      if (error) {
+        setSignOutError("Unable to sign out right now.");
+        return;
+      }
+
+      router.replace("/");
+      router.refresh();
+    } catch {
+      setSignOutError("Unable to sign out right now.");
+    } finally {
+      setIsSigningOut(false);
+    }
+  };
 
   useEffect(() => {
     setIsMounted(true);
@@ -57,21 +97,42 @@ export function Header() {
         
         {/* Center: Minimal Navigation */}
         <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-foreground/70">
-          <Link href="/features" className="hover:text-foreground transition-colors">
+          <Link href="/#features" className="hover:text-foreground transition-colors">
             Features
           </Link>
-          <Link href="/docs" className="hover:text-foreground transition-colors">
-            Docs
+          <Link href="/#workflow" className="hover:text-foreground transition-colors">
+            How it works
           </Link>
         </nav>
 
         {/* Right: Actions */}
         <div className="flex items-center gap-4">
+          {isAuthenticated ? (
+            <div className="flex flex-col items-end gap-1">
+              <div className="flex items-center gap-3">
+                <div className="hidden text-right lg:block">
+                  <p className="text-sm text-foreground/60">{session?.user.email}</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleSignOut}
+                  disabled={isSigningOut}
+                  className="inline-flex rounded-full border border-border bg-card/80 px-3 py-2 text-xs font-medium text-foreground transition-colors hover:bg-secondary/80 disabled:cursor-not-allowed disabled:opacity-60 sm:px-4 sm:py-2.5 sm:text-sm"
+                >
+                  {isSigningOut ? "Signing out..." : "Sign out"}
+                </button>
+              </div>
+              {signOutError ? (
+                <p className="text-xs text-red-600">{signOutError}</p>
+              ) : null}
+            </div>
+          ) : null}
           <Link 
-            href="/login" 
+            href={primaryHref}
+            aria-current={pathname === "/dashboard" && isAuthenticated ? "page" : undefined}
             className="rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 transition-colors"
           >
-            Log in
+            {primaryLabel}
           </Link>
         </div>
       </div>

@@ -6,9 +6,11 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test": "node --test tests/site-smoke.test.mjs"
   },
   "dependencies": {
+    "better-auth": "^1.6.5",
     "next": "14.2.5",
     "react": "18.3.1",
     "react-dom": "18.3.1"
