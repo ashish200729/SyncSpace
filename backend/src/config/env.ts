@@ -40,12 +40,36 @@ const parseOrigins = (...values: Array<string | undefined>): string[] => {
 const nodeEnv = process.env.NODE_ENV ?? "development";
 const isProduction = nodeEnv === "production";
 
+const toDeploymentURL = (value?: string): string | null => {
+  if (!value) {
+    return null;
+  }
+
+  const normalizedValue = trimAndStripTrailingSlash(value);
+  if (!normalizedValue) {
+    return null;
+  }
+
+  if (normalizedValue.startsWith("http://") || normalizedValue.startsWith("https://")) {
+    return normalizedValue;
+  }
+
+  return `https://${normalizedValue}`;
+};
+
 const parsedPort = Number(process.env.PORT ?? DEFAULT_PORT);
 const port = Number.isFinite(parsedPort) && parsedPort > 0 ? parsedPort : DEFAULT_PORT;
 
-const authBaseURL = toOrigin(process.env.BETTER_AUTH_URL ?? DEFAULT_AUTH_URL) ?? DEFAULT_AUTH_URL;
+const vercelDeploymentURL =
+  toDeploymentURL(process.env.VERCEL_PROJECT_PRODUCTION_URL) ??
+  toDeploymentURL(process.env.VERCEL_URL);
+
+const authBaseURL =
+  toOrigin(process.env.BETTER_AUTH_URL ?? vercelDeploymentURL ?? DEFAULT_AUTH_URL) ??
+  DEFAULT_AUTH_URL;
 const frontendURL =
-  toOrigin(process.env.FRONTEND_URL ?? DEFAULT_FRONTEND_URL) ?? DEFAULT_FRONTEND_URL;
+  toOrigin(process.env.FRONTEND_URL ?? DEFAULT_FRONTEND_URL) ??
+  (isProduction ? authBaseURL : DEFAULT_FRONTEND_URL);
 
 const trustedOrigins = parseOrigins(
   frontendURL,

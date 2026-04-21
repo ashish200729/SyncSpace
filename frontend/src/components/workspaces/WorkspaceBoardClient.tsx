@@ -9,7 +9,7 @@ import {
   type WorkspaceDetailView,
   workspaceDetailViewItems,
 } from "../../lib/workspaceNavigation";
-import { getSocketClient } from "../../lib/socketClient";
+import { getSocketClient, isRealtimeEnabled } from "../../lib/socketClient";
 import { TaskDetailPanel } from "../tasks/TaskDetailPanel";
 import type {
   ActivityEntry,
@@ -41,7 +41,12 @@ type SaveTaskInput = {
   dueDate: string | null;
 };
 
-type SocketState = "connecting" | "connected" | "disconnected" | "forbidden";
+type SocketState =
+  | "connecting"
+  | "connected"
+  | "disconnected"
+  | "forbidden"
+  | "unsupported";
 type StatusFilter = "ALL" | TaskStatus;
 
 const taskStatuses: TaskStatus[] = ["TODO", "IN_PROGRESS", "DONE"];
@@ -310,6 +315,11 @@ export function WorkspaceBoardClient({
   }, [selectedTaskId, tasks]);
 
   useEffect(() => {
+    if (!isRealtimeEnabled) {
+      setSocketState("unsupported");
+      return;
+    }
+
     const socket = getSocketClient();
 
     const joinWorkspaceRoom = () => {
@@ -596,6 +606,8 @@ export function WorkspaceBoardClient({
                 <span
                   className={`h-2.5 w-2.5 rounded-full ${socketState === "connected"
                       ? "bg-emerald-500"
+                      : socketState === "unsupported"
+                        ? "bg-slate-400"
                       : socketState === "forbidden"
                         ? "bg-red-500"
                         : "bg-amber-500"
@@ -604,6 +616,8 @@ export function WorkspaceBoardClient({
                 <span>
                   {socketState === "connected"
                     ? "Live updates connected"
+                    : socketState === "unsupported"
+                      ? "Live updates unavailable on this deployment"
                     : socketState === "forbidden"
                       ? "Live updates unavailable"
                       : "Connecting"}

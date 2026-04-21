@@ -12,10 +12,23 @@ let socketClient: Socket<
   SocketClientToServerEvents
 > | null = null;
 
+const explicitRealtimeSetting = process.env.NEXT_PUBLIC_ENABLE_REALTIME?.trim();
+
+export const isRealtimeEnabled =
+  explicitRealtimeSetting === "true"
+    ? true
+    : explicitRealtimeSetting === "false"
+      ? false
+      : !browserApiBaseURL.includes(".vercel.app");
+
 export const getSocketClient = (): Socket<
   SocketServerToClientEvents,
   SocketClientToServerEvents
 > => {
+  if (!isRealtimeEnabled) {
+    throw new Error("Realtime is disabled for this deployment.");
+  }
+
   if (!socketClient) {
     socketClient = io(browserApiBaseURL, {
       autoConnect: false,
