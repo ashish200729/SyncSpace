@@ -33,6 +33,7 @@ export const getSocketClient = (): Socket<
     socketClient = io(browserApiBaseURL, {
       autoConnect: false,
       withCredentials: true,
+      transports: ["websocket", "polling"], // Disable WebTransport to prevent handshake errors in some environments
       tryAllTransports: true,
     });
   }

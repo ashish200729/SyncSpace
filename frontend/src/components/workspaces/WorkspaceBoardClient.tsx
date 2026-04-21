@@ -624,6 +624,27 @@ export function WorkspaceBoardClient({
                 </span>
               </div>
 
+                {workspaceState.permissions.canManageInvites ? (
+                  <div className="flex items-center gap-3 rounded-full border border-border/40 bg-background pl-4 pr-1.5 py-1.5 shadow-sm">
+                    <span className="text-xs font-semibold text-muted-foreground">
+                      Invite code
+                    </span>
+                    <span className="font-mono text-sm font-medium text-foreground">
+                      {workspaceState.inviteEnabled && workspaceState.inviteCode
+                        ? workspaceState.inviteCode
+                        : "Disabled"}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => handleCopy(workspaceState.inviteCode ?? "", "code")}
+                      disabled={!workspaceState.inviteEnabled || !workspaceState.inviteCode}
+                      className="rounded-full bg-secondary px-3 py-1 text-xs font-medium text-secondary-foreground transition hover:bg-secondary/80 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      {copiedField === "code" ? "Copied" : "Copy"}
+                    </button>
+                  </div>
+                ) : null}
+
               <button
                 type="button"
                 onClick={() => setIsCreateModalOpen(true)}

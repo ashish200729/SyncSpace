@@ -165,38 +165,44 @@ export const createTask = async (
     await ensureWorkspaceAssignee(workspaceId, input.assigneeId);
   }
 
-  const { task, activity } = await prisma.$transaction(async (transaction) => {
-    const createdTask = await transaction.task.create({
-      data: {
+  const { task, activity } = await prisma.$transaction(
+    async (transaction) => {
+      const createdTask = await transaction.task.create({
+        data: {
+          workspaceId,
+          title: input.title,
+          description: input.description,
+          status: normalizeStatus(input.status),
+          creatorId: userId,
+          assigneeId: input.assigneeId ?? undefined,
+          dueDate: input.dueDate ?? undefined,
+          completedAt:
+            normalizeStatus(input.status) === "DONE" ? new Date() : null,
+        },
+        select: taskSelect,
+      });
+
+      const activity = await recordActivity(transaction, {
+        action: ActivityAction.TASK_CREATED,
         workspaceId,
-        title: input.title,
-        description: input.description,
-        status: normalizeStatus(input.status),
-        creatorId: userId,
-        assigneeId: input.assigneeId ?? undefined,
-        dueDate: input.dueDate ?? undefined,
-        completedAt:
-          normalizeStatus(input.status) === "DONE" ? new Date() : null,
-      },
-      select: taskSelect,
-    });
+        actorId: userId,
+        taskId: createdTask.id,
+        metadata: {
+          status: createdTask.status,
+          assigneeId: createdTask.assignee?.id ?? null,
+        },
+      });
 
-    const activity = await recordActivity(transaction, {
-      action: ActivityAction.TASK_CREATED,
-      workspaceId,
-      actorId: userId,
-      taskId: createdTask.id,
-      metadata: {
-        status: createdTask.status,
-        assigneeId: createdTask.assignee?.id ?? null,
-      },
-    });
-
-    return {
-      task: createdTask,
-      activity,
-    };
-  });
+      return {
+        task: createdTask,
+        activity,
+      };
+    },
+    {
+      maxWait: 10000,
+      timeout: 10000,
+    }
+  );
 
   const serializedTask = serializeTask(task);
   emitWorkspaceEvent(workspaceId, socketEvents.taskCreated, {

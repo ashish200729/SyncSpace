@@ -78,6 +78,7 @@ const trustedOrigins = parseOrigins(
 );
 
 const configuredAuthSecret = process.env.BETTER_AUTH_SECRET?.trim();
+const configuredAuthCookieDomain = process.env.AUTH_COOKIE_DOMAIN?.trim();
 if (isProduction && !configuredAuthSecret) {
   throw new Error("BETTER_AUTH_SECRET is required in production.");
 }
@@ -104,6 +105,7 @@ export const appConfig = {
 
 export const securityConfig = {
   betterAuthSecret,
+  authCookieDomain: configuredAuthCookieDomain || null,
 };
 
 export const normalizeOrigin = (origin: string): string | null => toOrigin(origin);

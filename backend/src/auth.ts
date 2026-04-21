@@ -51,6 +51,14 @@ export const auth = betterAuth({
   },
   advanced: {
     useSecureCookies: appConfig.isProduction,
+    ...(securityConfig.authCookieDomain
+      ? {
+          crossSubDomainCookies: {
+            enabled: true,
+            domain: securityConfig.authCookieDomain,
+          },
+        }
+      : {}),
     ipAddress: {
       ipAddressHeaders: ["x-forwarded-for", "x-real-ip"],
     },

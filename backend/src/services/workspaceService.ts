@@ -292,71 +292,107 @@ export const joinWorkspace = async (
     throw ApiError.badRequest("Invite code or link is invalid.");
   }
 
-  const existingMembership = await prisma.workspaceMember.findFirst({
+  const existingMembership = await prisma.workspaceMember.findUnique({
     where: {
-      workspaceId: workspace.id,
-      userId,
-      leftAt: null,
+      workspaceId_userId: {
+        workspaceId: workspace.id,
+        userId,
+      },
     },
     select: {
       id: true,
+      role: true,
+      joinedAt: true,
+      leftAt: true,
     },
   });
 
-  if (existingMembership) {
+  if (existingMembership && existingMembership.leftAt === null) {
     return {
       workspace: await getWorkspace(workspace.id, userId),
       alreadyMember: true,
     };
   }
 
-  const joinedWorkspace = await prisma.$transaction(async (transaction) => {
-    const member = await transaction.workspaceMember.create({
-      data: {
-        workspaceId: workspace.id,
-        userId,
-        role: "MEMBER",
-        invitedById: workspace.ownerId,
-      },
-      select: workspaceMemberSelect,
-    });
+  try {
+    const joinedWorkspace = await prisma.$transaction(
+      async (transaction) => {
+        const member = existingMembership
+          ? await transaction.workspaceMember.update({
+              where: {
+                id: existingMembership.id,
+              },
+              data: {
+                leftAt: null,
+                joinedAt: new Date(),
+                invitedById: workspace.ownerId,
+              },
+              select: workspaceMemberSelect,
+            })
+          : await transaction.workspaceMember.create({
+              data: {
+                workspaceId: workspace.id,
+                userId,
+                role: "MEMBER",
+                invitedById: workspace.ownerId,
+              },
+              select: workspaceMemberSelect,
+            });
 
-    const activity = await recordActivity(transaction, {
-      action: ActivityAction.WORKSPACE_MEMBER_ADDED,
+        const activity = await recordActivity(transaction, {
+          action: ActivityAction.WORKSPACE_MEMBER_ADDED,
+          workspaceId: workspace.id,
+          actorId: userId,
+          metadata: {
+            memberUserId: userId,
+          },
+        });
+
+        const fullWorkspace = await transaction.workspace.findUniqueOrThrow({
+          where: {
+            id: workspace.id,
+          },
+          select: workspaceSelect,
+        });
+
+        return {
+          member,
+          workspace: fullWorkspace,
+          activity,
+        };
+      },
+      {
+        maxWait: 10000,
+        timeout: 10000,
+      }
+    );
+
+    emitWorkspaceEvent(workspace.id, socketEvents.workspaceMemberJoined, {
       workspaceId: workspace.id,
-      actorId: userId,
-      metadata: {
-        memberUserId: userId,
-      },
+      member: serializeWorkspaceMember(joinedWorkspace.member),
     });
-
-    const fullWorkspace = await transaction.workspace.findUniqueOrThrow({
-      where: {
-        id: workspace.id,
-      },
-      select: workspaceSelect,
+    emitWorkspaceEvent(workspace.id, socketEvents.activityCreated, {
+      workspaceId: workspace.id,
+      activity: joinedWorkspace.activity,
     });
 
     return {
-      member,
-      workspace: fullWorkspace,
-      activity,
+      workspace: serializeWorkspace(joinedWorkspace.workspace, "MEMBER"),
+      alreadyMember: false,
     };
-  });
+  } catch (error) {
+    if (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === "P2002"
+    ) {
+      return {
+        workspace: await getWorkspace(workspace.id, userId),
+        alreadyMember: true,
+      };
+    }
 
-  emitWorkspaceEvent(workspace.id, socketEvents.workspaceMemberJoined, {
-    workspaceId: workspace.id,
-    member: serializeWorkspaceMember(joinedWorkspace.member),
-  });
-  emitWorkspaceEvent(workspace.id, socketEvents.activityCreated, {
-    workspaceId: workspace.id,
-    activity: joinedWorkspace.activity,
-  });
-
-  return {
-    workspace: serializeWorkspace(joinedWorkspace.workspace, "MEMBER"),
-    alreadyMember: false,
-  };
+    throw error;
+  }
 };
 
 export const getWorkspaceActivity = async (
