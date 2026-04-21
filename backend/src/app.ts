@@ -4,7 +4,7 @@ import helmet from "helmet";
 import { toNodeHandler } from "better-auth/node";
 import { auth } from "./auth.js";
 import { appConfig, normalizeOrigin } from "./config/env.js";
-import { apiErrorHandler, apiNotFoundHandler } from "./middleware/error-handler.js";
+import { apiErrorHandler, apiNotFoundHandler } from "./middleware/errorHandler.js";
 import rootRouter from "./routes/index.js";
 
 export const createApp = () => {
@@ -40,7 +40,8 @@ export const createApp = () => {
   app.all("/api/auth/*", toNodeHandler(auth));
 
   // Keep Better Auth mounted before express.json() or auth requests can hang.
-  app.use(express.json());
+  app.use(express.json({ limit: "256kb" }));
+  app.use(express.urlencoded({ extended: false, limit: "64kb" }));
   app.use("/", rootRouter);
   app.use(apiNotFoundHandler);
   app.use(apiErrorHandler);

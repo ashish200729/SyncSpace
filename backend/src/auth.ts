@@ -39,11 +39,11 @@ export const auth = betterAuth({
   rateLimit: {
     enabled: true,
     customRules: {
-      "/sign-in/email": {
+      "/api/auth/sign-in/email": {
         window: 60,
         max: 5,
       },
-      "/sign-up/email": {
+      "/api/auth/sign-up/email": {
         window: 60,
         max: 3,
       },

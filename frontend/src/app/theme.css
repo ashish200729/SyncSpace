@@ -9,7 +9,7 @@
 }
 
 @theme inline {
-  --font-sans: var(--font-manrope), "Inter", "Helvetica Neue", sans-serif;
+  --font-sans: "Helvetica Neue", "Avenir Next", "Inter", sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
 
   --radius-sm: 0.5rem;

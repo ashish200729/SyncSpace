@@ -3,8 +3,9 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { authClient } from "../../lib/auth-client";
-import type { AuthSession } from "../../lib/auth-session";
+import { authClient } from "../../lib/authClient";
+import { disconnectSocketClient } from "../../lib/socketClient";
+import type { AuthSession } from "../../lib/authSession";
 
 type HeaderProps = {
   initialSession: AuthSession | null;
@@ -12,7 +13,7 @@ type HeaderProps = {
 
 export function Header({ initialSession }: HeaderProps) {
   const router = useRouter();
-  const pathname = usePathname();
+  const pathname = usePathname() ?? "/";
   const { data: sessionData, isPending } = authClient.useSession();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
@@ -38,6 +39,7 @@ export function Header({ initialSession }: HeaderProps) {
         return;
       }
 
+      disconnectSocketClient();
       router.replace("/");
       router.refresh();
     } catch {

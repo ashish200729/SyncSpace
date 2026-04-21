@@ -1,16 +1,15 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSearchParams } from "next/navigation";
 import { FormEvent, useState } from "react";
-import { authClient } from "../../lib/auth-client";
-import { getSignUpErrorMessage } from "../../lib/auth-errors";
+import { authClient } from "../../lib/authClient";
+import { getSignUpErrorMessage } from "../../lib/authErrors";
 import {
   buildAuthHref,
   getAbsoluteCallbackURL,
   getSafeRedirectPath,
-} from "../../lib/callback-url";
+} from "../../lib/callbackUrl";
 import { AuthShell } from "./AuthShell";
 
 export function SignUpForm() {
@@ -21,7 +20,7 @@ export function SignUpForm() {
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const callbackPath = getSafeRedirectPath(searchParams.get("callback"));
+  const callbackPath = getSafeRedirectPath(searchParams?.get("callback"));
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -64,7 +63,7 @@ export function SignUpForm() {
   return (
     <AuthShell
       title="Create your account"
-      subtitle="Create your account and start shaping a clearer rhythm for projects, tasks, and team momentum."
+      subtitle="Set up your SyncSpace account and jump straight into collaborative workspaces."
       footerText="Already have an account?"
       footerHref={buildAuthHref("/login", callbackPath)}
       footerLinkLabel="Sign in"

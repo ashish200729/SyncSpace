@@ -1,16 +1,15 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSearchParams } from "next/navigation";
 import { FormEvent, useState } from "react";
-import { authClient } from "../../lib/auth-client";
-import { getSignInErrorMessage } from "../../lib/auth-errors";
+import { authClient } from "../../lib/authClient";
+import { getSignInErrorMessage } from "../../lib/authErrors";
 import {
   buildAuthHref,
   getAbsoluteCallbackURL,
   getSafeRedirectPath,
-} from "../../lib/callback-url";
+} from "../../lib/callbackUrl";
 import { AuthShell } from "./AuthShell";
 
 export function SignInForm() {
@@ -20,7 +19,7 @@ export function SignInForm() {
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const callbackPath = getSafeRedirectPath(searchParams.get("callback"));
+  const callbackPath = getSafeRedirectPath(searchParams?.get("callback"));
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -55,7 +54,7 @@ export function SignInForm() {
   return (
     <AuthShell
       title="Welcome back"
-      subtitle="Sign in and step back into a calmer, more focused way to keep work moving."
+      subtitle="Sign in to continue managing projects, tasks, and real-time updates."
       footerText="Need an account?"
       footerHref={buildAuthHref("/signup", callbackPath)}
       footerLinkLabel="Create one"

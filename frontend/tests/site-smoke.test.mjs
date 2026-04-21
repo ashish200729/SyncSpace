@@ -28,7 +28,7 @@ test("header and footer only link to shipped anchors", async () => {
 
 test("site copy stays user-facing and avoids internal implementation jargon", async () => {
   const homeSource = await read("src", "app", "(site)", "page.tsx");
-  const dashboardSource = await read("src", "app", "(site)", "dashboard", "page.tsx");
+  const dashboardSource = await read("src", "app", "(app)", "dashboard", "page.tsx");
   const signInSource = await read("src", "components", "auth", "SignInForm.tsx");
   const signUpSource = await read("src", "components", "auth", "SignUpForm.tsx");
 
@@ -43,7 +43,7 @@ test("site copy stays user-facing and avoids internal implementation jargon", as
 
 test("server session config documents a dedicated server API URL", async () => {
   const envSource = await read(".env.example");
-  const sessionSource = await read("src", "lib", "server-session.ts");
+  const sessionSource = await read("src", "lib", "serverSession.ts");
 
   assert.match(envSource, /NEXT_SERVER_API_URL=/);
   assert.match(sessionSource, /NEXT_SERVER_API_URL/);

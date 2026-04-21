@@ -2,7 +2,7 @@ import "server-only";
 
 import { cookies } from "next/headers";
 import { cache } from "react";
-import type { AuthSession } from "./auth-session";
+import type { AuthSession } from "./authSession";
 
 const DEFAULT_API_URL = "http://localhost:4000";
 
@@ -15,7 +15,7 @@ const baseURL = normalizeBaseURL(
 );
 
 export const getServerSession = cache(async (): Promise<AuthSession | null> => {
-  const cookieHeader = cookies().toString();
+  const cookieHeader = (await cookies()).toString();
   if (!cookieHeader) {
     return null;
   }
