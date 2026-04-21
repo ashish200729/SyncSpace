@@ -4,6 +4,10 @@ import { emitWorkspaceEvent } from "../realtime/socketServer.js";
 import { socketEvents } from "../realtime/socketEvents.js";
 import { recordActivity } from "./activityService.js";
 import {
+  createTaskAssignedNotificationRecord,
+  emitNotificationCreated,
+} from "./notificationService.js";
+import {
   ensureTaskDeletable,
   ensureTaskDetailsEditable,
   ensureTaskStatusEditable,
@@ -203,6 +207,23 @@ export const createTask = async (
     workspaceId,
     activity,
   });
+  if (task.assignee?.id) {
+    try {
+      const notification = await createTaskAssignedNotificationRecord(prisma, {
+        recipientUserId: task.assignee.id,
+        actorUserId: userId,
+        taskId: task.id,
+        workspaceId,
+        taskTitle: task.title,
+      });
+
+      if (notification) {
+        emitNotificationCreated(task.assignee.id, notification);
+      }
+    } catch (error) {
+      console.error("Failed to create task assignment notification", error);
+    }
+  }
 
   return serializedTask;
 };
@@ -218,6 +239,7 @@ export const updateTask = async (
     await ensureWorkspaceAssignee(taskAccess.task.workspaceId, input.assigneeId);
   }
 
+  const previousAssigneeId = taskAccess.task.assigneeId;
   const { task, activity } = await prisma.$transaction(async (transaction) => {
     const updatedTask = await transaction.task.update({
       where: {
@@ -260,6 +282,28 @@ export const updateTask = async (
     workspaceId: taskAccess.task.workspaceId,
     activity,
   });
+  const shouldNotifyAssignee =
+    task.assignee?.id &&
+    task.assignee.id !== userId &&
+    task.assignee.id !== previousAssigneeId;
+
+  if (shouldNotifyAssignee && task.assignee?.id) {
+    try {
+      const notification = await createTaskAssignedNotificationRecord(prisma, {
+        recipientUserId: task.assignee.id,
+        actorUserId: userId,
+        taskId,
+        workspaceId: taskAccess.task.workspaceId,
+        taskTitle: task.title,
+      });
+
+      if (notification) {
+        emitNotificationCreated(task.assignee.id, notification);
+      }
+    } catch (error) {
+      console.error("Failed to create task assignment notification", error);
+    }
+  }
 
   return serializedTask;
 };

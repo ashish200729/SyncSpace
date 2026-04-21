@@ -99,6 +99,25 @@ export type JoinWorkspaceResult = {
   alreadyMember: boolean;
 };
 
+export type NotificationItem = {
+  id: string;
+  type: "TASK_ASSIGNED" | "TASK_COMMENTED";
+  title: string;
+  message?: string | null;
+  isRead: boolean;
+  readAt?: string | null;
+  createdAt: string;
+  actor?: UserSummary | null;
+  task?: {
+    id: string;
+    title: string;
+  } | null;
+  workspace?: {
+    id: string;
+    name: string;
+  } | null;
+};
+
 export type WorkspaceJoinAcknowledgeResponse = {
   ok: boolean;
   message?: string;
@@ -130,6 +149,10 @@ export type WorkspaceMemberJoinedEventPayload = {
   member: WorkspaceMember;
 };
 
+export type NotificationCreatedEventPayload = {
+  notification: NotificationItem;
+};
+
 export type SocketServerToClientEvents = {
   activityCreated: (payload: ActivityCreatedEventPayload) => void;
   workspaceMemberJoined: (payload: WorkspaceMemberJoinedEventPayload) => void;
@@ -138,6 +161,7 @@ export type SocketServerToClientEvents = {
   taskDeleted: (payload: TaskDeletedEventPayload) => void;
   taskStatusChanged: (payload: TaskEventPayload) => void;
   commentCreated: (payload: CommentCreatedEventPayload) => void;
+  notificationCreated: (payload: NotificationCreatedEventPayload) => void;
 };
 
 export type SocketClientToServerEvents = {
@@ -145,4 +169,5 @@ export type SocketClientToServerEvents = {
     workspaceId: string,
     acknowledge?: (response: WorkspaceJoinAcknowledgeResponse) => void,
   ) => void;
+  workspaceLeave: (workspaceId: string) => void;
 };

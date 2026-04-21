@@ -1,6 +1,6 @@
 # SyncSpace
 
-SyncSpace is a collaborative workspace and task management system built for the "Full Stack Developer Intern Assignment (24 Hours)" brief. It focuses on the assignment's core requirement: multiple users should be able to create shared workspaces, manage tasks, and see important updates in real time without giving up clean architecture or server-side access control.
+SyncSpace is a collaborative workspace and task management system for teams that need shared workspaces, task management, and realtime updates with clean architecture and server-side access control.
 
 The project ships as a two-app TypeScript monorepo:
 
@@ -112,7 +112,7 @@ The Prisma schema is intentionally stronger than the minimum UI surface because 
 - `Comment` duplicates `workspaceId` intentionally so comment authorship can also be constrained to workspace membership.
 - Tasks are soft-deleted with `deletedAt` so activity history and related context stay intact.
 
-The schema also contains `Notification` and expanded task status/priority enums for future growth, but the current API and UI deliberately stay scoped to the assignment's needs.
+The schema also contains `Notification` and expanded task status/priority enums for future growth, while the current API and UI stay focused on the core collaboration flow.
 
 ## Authentication, Authorization, and Security
 
@@ -342,11 +342,11 @@ Frontend tests currently cover:
 
 ### 1. Session cookies over JWT-heavy client auth
 
-I chose Better Auth session cookies so the backend can stay authoritative and Socket.IO can authenticate against the same server-managed session. This is simpler and safer for the assignment than pushing more auth state into the client.
+I chose Better Auth session cookies so the backend can stay authoritative and Socket.IO can authenticate against the same server-managed session. This is simpler and safer than pushing more auth state into the client.
 
 ### 2. Service-layer structure over ultra-fast inline handlers
 
-Controllers, services, middleware, and schemas add some upfront structure, but they make permissions, validation, and realtime side effects much easier to reason about under a 24-hour timebox.
+Controllers, services, middleware, and schemas add some upfront structure, but they make permissions, validation, and realtime side effects much easier to reason about as the app grows.
 
 ### 3. Server-rendered first load, client-driven live updates
 
@@ -354,11 +354,11 @@ Workspace pages fetch initial data on the server for a strong first render and t
 
 ### 4. `prisma db push` instead of a formal migration history
 
-For a take-home assignment, `db push` keeps setup fast and iteration friction low. For a production system, I would replace this with explicit migrations and seeded development data.
+`prisma db push` keeps setup fast and iteration friction low during active development. For a production system, I would replace this with explicit migrations and seeded development data.
 
 ### 5. Scoped realtime instead of complex synchronization infrastructure
 
-The app uses workspace rooms and event broadcasts after successful writes. It does not attempt conflict resolution, offline queues, or event replay. That keeps the collaboration model reliable enough for the assignment without over-engineering it.
+The app uses workspace rooms and event broadcasts after successful writes. It does not attempt conflict resolution, offline queues, or event replay. That keeps the collaboration model reliable without over-engineering it.
 
 ### 6. Forward-looking schema, intentionally narrower product surface
 
@@ -373,6 +373,6 @@ The schema supports more statuses, priorities, and notifications than the curren
 - Introduce presence indicators and reconnect-aware UX for realtime collaboration
 - Add production deployment config, observability, and background jobs for due-date reminders
 
-## Submission Notes
+## Project Notes
 
-This repository intentionally prioritizes correctness, access control, and maintainable architecture over feature sprawl. The goal was to deliver the assignment end-to-end with a codebase that is still easy to explain, extend, and review.
+This repository intentionally prioritizes correctness, access control, and maintainable architecture over feature sprawl. The result is a codebase that stays easy to explain, extend, and review.

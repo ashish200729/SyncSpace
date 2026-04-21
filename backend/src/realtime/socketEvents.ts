@@ -1,5 +1,6 @@
 export const socketEvents = {
   workspaceJoin: "workspaceJoin",
+  workspaceLeave: "workspaceLeave",
   activityCreated: "activityCreated",
   workspaceMemberJoined: "workspaceMemberJoined",
   taskCreated: "taskCreated",
@@ -7,6 +8,7 @@ export const socketEvents = {
   taskDeleted: "taskDeleted",
   taskStatusChanged: "taskStatusChanged",
   commentCreated: "commentCreated",
+  notificationCreated: "notificationCreated",
 } as const;
 
 export const getWorkspaceRoom = (workspaceId: string) =>

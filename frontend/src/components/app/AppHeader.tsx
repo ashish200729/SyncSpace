@@ -4,14 +4,19 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { authClient } from "../../lib/authClient";
 import { disconnectSocketClient } from "../../lib/socketClient";
-import type { AuthSession } from "../../types/app";
+import type { AuthSession, NotificationItem } from "../../types/app";
+import { NotificationBell } from "./NotificationBell";
 import { useSidebar } from "./SidebarProvider";
 
 type AppHeaderProps = {
   initialSession: AuthSession;
+  initialNotifications: NotificationItem[];
 };
 
-export function AppHeader({ initialSession }: AppHeaderProps) {
+export function AppHeader({
+  initialSession,
+  initialNotifications,
+}: AppHeaderProps) {
   const router = useRouter();
   const { data: sessionData } = authClient.useSession();
   const [isSigningOut, setIsSigningOut] = useState(false);
@@ -81,6 +86,8 @@ export function AppHeader({ initialSession }: AppHeaderProps) {
               {signOutError}
             </p>
           ) : null}
+
+          <NotificationBell initialNotifications={initialNotifications} />
 
           <button
             type="button"

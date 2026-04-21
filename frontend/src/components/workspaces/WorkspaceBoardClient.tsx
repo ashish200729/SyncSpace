@@ -440,7 +440,7 @@ export function WorkspaceBoardClient({
       socket.off("commentCreated", handleCommentCreated);
       socket.off("activityCreated", handleActivityCreated);
       socket.off("workspaceMemberJoined", handleWorkspaceMemberJoined);
-      socket.disconnect();
+      socket.emit("workspaceLeave", workspace.id);
     };
   }, [workspace.id]);
 

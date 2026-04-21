@@ -1,5 +1,6 @@
 import { Router } from "express";
 import commentRoutes from "./commentRoutes.js";
+import notificationRoutes from "./notificationRoutes.js";
 import taskRoutes from "./taskRoutes.js";
 import workspaceRoutes from "./workspaceRoutes.js";
 
@@ -18,6 +19,7 @@ router.get("/api/health", (_req, res) => {
 });
 
 router.use("/api/workspaces", workspaceRoutes);
+router.use("/api/notifications", notificationRoutes);
 router.use("/api", taskRoutes);
 router.use("/api", commentRoutes);
 

@@ -101,6 +101,14 @@ export const initializeSocketServer = (httpServer: HttpServer) => {
         });
       },
     );
+
+    socket.on(socketEvents.workspaceLeave, (workspaceId: string) => {
+      if (typeof workspaceId !== "string" || workspaceId.trim().length === 0) {
+        return;
+      }
+
+      socket.leave(getWorkspaceRoom(workspaceId));
+    });
   });
 
   return io;
@@ -112,4 +120,12 @@ export const emitWorkspaceEvent = (
   payload: unknown,
 ) => {
   io?.to(getWorkspaceRoom(workspaceId)).emit(eventName, payload);
+};
+
+export const emitUserEvent = (
+  userId: string,
+  eventName: string,
+  payload: unknown,
+) => {
+  io?.to(getUserRoom(userId)).emit(eventName, payload);
 };

@@ -3,6 +3,10 @@ import prisma from "../config/prisma.js";
 import { emitWorkspaceEvent } from "../realtime/socketServer.js";
 import { socketEvents } from "../realtime/socketEvents.js";
 import { recordActivity } from "./activityService.js";
+import {
+  createCommentNotificationRecords,
+  emitNotificationCreated,
+} from "./notificationService.js";
 import { ensureTaskAccess } from "./workspaceAccessService.js";
 
 const commentSelect = {
@@ -97,6 +101,28 @@ export const createComment = async (
     workspaceId: taskAccess.task.workspaceId,
     activity,
   });
+
+  try {
+    const notifications = await createCommentNotificationRecords(prisma, {
+      recipientUserIds: [
+        taskAccess.task.creatorId,
+        taskAccess.task.assigneeId,
+      ].filter((id): id is string => id != null),
+      actorUserId: userId,
+      taskId,
+      workspaceId: taskAccess.task.workspaceId,
+      taskTitle: taskAccess.task.title,
+    });
+
+    for (const delivery of notifications) {
+      emitNotificationCreated(
+        delivery.recipientUserId,
+        delivery.notification,
+      );
+    }
+  } catch (error) {
+    console.error("Failed to create comment notifications", error);
+  }
 
   return serializedComment;
 };

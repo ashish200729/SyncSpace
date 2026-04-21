@@ -1,6 +1,6 @@
 import cors from "cors";
 import express from "express";
-import helmet from "helmet";
+import helmetImport from "helmet";
 import { toNodeHandler } from "better-auth/node";
 import { auth } from "./auth.js";
 import { appConfig, normalizeOrigin } from "./config/env.js";
@@ -9,6 +9,16 @@ import rootRouter from "./routes/index.js";
 
 export const createApp = () => {
   const app = express();
+  type HelmetFactory = () => express.RequestHandler;
+  const helmetFactory: HelmetFactory | undefined =
+    typeof helmetImport === "function"
+      ? (helmetImport as unknown as HelmetFactory)
+      : (helmetImport as unknown as { default?: HelmetFactory }).default;
+
+  if (!helmetFactory) {
+    throw new Error("Helmet middleware factory is not available.");
+  }
+
   const allowedOrigins = new Set(appConfig.trustedOrigins);
 
   app.disable("x-powered-by");
@@ -16,7 +26,7 @@ export const createApp = () => {
     app.set("trust proxy", 1);
   }
 
-  app.use(helmet());
+  app.use(helmetFactory());
   app.use(
     cors({
       origin(origin, callback) {
